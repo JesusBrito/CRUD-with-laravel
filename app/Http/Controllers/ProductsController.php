@@ -7,6 +7,9 @@ use App\Product;
 
 class ProductsController extends Controller
 {
+    public function __construct(){
+      $this->middleware('auth',['except'=> ['index', 'show']]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +18,7 @@ class ProductsController extends Controller
     public function index()
     {
         //Mostrar una colección del recurso
-        $products= Product::all();
+        $products= Product::paginate(3);
 
         return view('products.index',['products'=>$products]);
     }
@@ -28,7 +31,8 @@ class ProductsController extends Controller
     public function create()
     {
         //Mostrar formulario para la creación de un nuevo recurso
-        return view('products.create');//carpeta.archivo
+        $product= new Product;
+        return view('products.create',["product"=>$product]);//carpeta.archivo
     }
 
     /**
@@ -62,6 +66,9 @@ class ProductsController extends Controller
     public function show($id)
     {
         //Muestra un recurso
+        $product = Product::find($id);
+
+        return view ("products.show", ["product"=>$product]);
     }
 
     /**
@@ -73,6 +80,8 @@ class ProductsController extends Controller
     public function edit($id)
     {
         //Muestra un formulario para editar un recurso
+        $product= Product::find($id);
+        return view("products.edit",["product"=>$product]);
     }
 
     /**
@@ -85,6 +94,17 @@ class ProductsController extends Controller
     public function update(Request $request, $id)
     {
         //Actualiza un recurso
+        $product = Product::find($id);
+
+        $product->title = $request->title;
+        $product->price = $request->price;
+        $product->description = $request->description;
+
+        if($product->save()){
+            return redirect('/productos');
+        }else{
+          return view("products.edit",["product"=>$product]);
+        }
     }
 
     /**
@@ -96,5 +116,7 @@ class ProductsController extends Controller
     public function destroy($id)
     {
         //Elimina un recurso
+        Product::destroy($id);
+        return redirect('/productos');
     }
 }
