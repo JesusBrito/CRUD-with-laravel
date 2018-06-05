@@ -1,0 +1,1 @@
+CRUD básico utilizado laravel
